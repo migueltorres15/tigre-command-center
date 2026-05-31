@@ -8,24 +8,24 @@ export async function PUT(request, { params }) {
     const { cliente, contacto, telefono, ciudad, estado, fecha_demo, paquete, link_demo, link_sitio, etapa, monto, stripe_link, notas, follow_up_fecha, follow_up_nota } = body;
 
     // Leer etapa anterior para detectar el cambio
-    const anterior = db.prepare('SELECT etapa FROM sitios_usa WHERE id = ?').get(params.id);
+    const anterior = await db.prepare('SELECT etapa FROM sitios_usa WHERE id = ?').get(params.id);
 
-    db.prepare(
+    await db.prepare(
       `UPDATE sitios_usa SET cliente=?, contacto=?, telefono=?, ciudad=?, estado=?, fecha_demo=?, paquete=?, link_demo=?, link_sitio=?, etapa=?, monto=?, stripe_link=?, notas=?, follow_up_fecha=?, follow_up_nota=? WHERE id=?`
     ).run(cliente, contacto || '', telefono || '', ciudad || '', estado || '', fecha_demo || '', paquete || 'por_elegir', link_demo || '', link_sitio || '', etapa || 'lead_nuevo', monto || null, stripe_link || '', notas || '', follow_up_fecha || null, follow_up_nota || null, params.id);
 
-    const sitio = db.prepare('SELECT * FROM sitios_usa WHERE id = ?').get(params.id);
+    const sitio = await db.prepare('SELECT * FROM sitios_usa WHERE id = ?').get(params.id);
 
     // ── Auto-crear en sitios web cuando cambia a demo_agendado ──────────────
     let sitioCreado = null;
     if (etapa === 'demo_agendado' && anterior?.etapa !== 'demo_agendado') {
       // Verificar que no exista ya (evitar duplicados)
-      const existe = db.prepare(
+      const existe = await db.prepare(
         `SELECT id FROM sitios WHERE cliente = ? COLLATE NOCASE`
       ).get(cliente);
 
       if (!existe) {
-        const ins = db.prepare(
+        const ins = await db.prepare(
           `INSERT INTO sitios (cliente, contacto, whatsapp, fecha_demo, paquete, link_demo, link_sitio, etapa, monto, moneda, notas)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).run(
@@ -54,7 +54,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const db = getDb();
-    db.prepare('DELETE FROM sitios_usa WHERE id = ?').run(params.id);
+    await db.prepare('DELETE FROM sitios_usa WHERE id = ?').run(params.id);
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

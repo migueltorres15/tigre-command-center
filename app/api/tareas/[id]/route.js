@@ -8,12 +8,12 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { texto, tag, proyecto, completada } = body;
 
-    const existing = db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
+    const existing = await db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
     if (!existing) {
       return Response.json({ error: 'Tarea no encontrada' }, { status: 404 });
     }
 
-    db.prepare(
+    await db.prepare(
       `UPDATE tareas SET
         texto = COALESCE(?, texto),
         tag = COALESCE(?, tag),
@@ -28,7 +28,7 @@ export async function PUT(request, { params }) {
       id
     );
 
-    const updated = db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
+    const updated = await db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
     return Response.json(updated);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -40,12 +40,12 @@ export async function DELETE(request, { params }) {
     const db = getDb();
     const { id } = params;
 
-    const existing = db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
+    const existing = await db.prepare('SELECT * FROM tareas WHERE id = ?').get(id);
     if (!existing) {
       return Response.json({ error: 'Tarea no encontrada' }, { status: 404 });
     }
 
-    db.prepare('DELETE FROM tareas WHERE id = ?').run(id);
+    await db.prepare('DELETE FROM tareas WHERE id = ?').run(id);
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

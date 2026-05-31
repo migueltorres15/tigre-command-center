@@ -8,12 +8,12 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { nombre, status, monto, moneda, notas, ultimo_contacto, sitio_url } = body;
 
-    const existing = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+    const existing = await db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
     if (!existing) {
       return Response.json({ error: 'Lead no encontrado' }, { status: 404 });
     }
 
-    db.prepare(
+    await db.prepare(
       `UPDATE leads SET
         nombre = COALESCE(?, nombre),
         status = COALESCE(?, status),
@@ -34,7 +34,7 @@ export async function PUT(request, { params }) {
       id
     );
 
-    const updated = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+    const updated = await db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
     return Response.json(updated);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -46,12 +46,12 @@ export async function DELETE(request, { params }) {
     const db = getDb();
     const { id } = params;
 
-    const existing = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+    const existing = await db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
     if (!existing) {
       return Response.json({ error: 'Lead no encontrado' }, { status: 404 });
     }
 
-    db.prepare('DELETE FROM leads WHERE id = ?').run(id);
+    await db.prepare('DELETE FROM leads WHERE id = ?').run(id);
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

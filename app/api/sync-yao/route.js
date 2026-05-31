@@ -21,17 +21,17 @@ export async function POST() {
       const fechaIngreso = `${sal.mes}-01`; // primer día del mes
 
       // Check if already synced: look for ingreso with proyecto=YAO and same month
-      const existing = db.prepare(
+      const existing = await db.prepare(
         `SELECT id FROM ingresos WHERE proyecto = 'YAO' AND strftime('%Y-%m', fecha) = ?`
       ).get(sal.mes);
 
       if (existing) {
         // Update the amount in case it changed
-        db.prepare(`UPDATE ingresos SET monto = ?, descripcion = ?, fecha = ? WHERE id = ?`)
+        await db.prepare(`UPDATE ingresos SET monto = ?, descripcion = ?, fecha = ? WHERE id = ?`)
           .run(sal.monto, sal.nota || 'Sueldo YAO', fechaIngreso, existing.id);
         skipped++;
       } else {
-        db.prepare(
+        await db.prepare(
           `INSERT INTO ingresos (proyecto, descripcion, monto, moneda, fecha) VALUES ('YAO', ?, ?, 'MXN', ?)`
         ).run(sal.nota || 'Sueldo YAO', sal.monto, fechaIngreso);
         synced++;

@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.3",
     "@twilio/voice-sdk": "^2.18.3",
     "better-sqlite3": "^11.1.2",
     "chart.js": "^4.5.1",

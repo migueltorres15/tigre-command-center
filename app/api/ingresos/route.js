@@ -37,12 +37,12 @@ export async function POST(request) {
       return Response.json({ error: 'monto es requerido' }, { status: 400 });
     }
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO ingresos (proyecto, descripcion, monto, moneda, fecha)
        VALUES (?, ?, ?, ?, COALESCE(?, date('now')))`
     ).run(proyecto, descripcion || null, monto, moneda, fecha || null);
 
-    const ingreso = db.prepare('SELECT * FROM ingresos WHERE id = ?').get(result.lastInsertRowid);
+    const ingreso = await db.prepare('SELECT * FROM ingresos WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(ingreso, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 export async function GET() {
   try {
     const db = getDb();
-    const leads = db.prepare('SELECT * FROM leads ORDER BY created_at DESC').all();
+    const leads = await db.prepare('SELECT * FROM leads ORDER BY created_at DESC').all();
     return Response.json(leads);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -21,12 +21,12 @@ export async function POST(request) {
       return Response.json({ error: 'nombre es requerido' }, { status: 400 });
     }
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO leads (nombre, status, monto, moneda, notas, ultimo_contacto, sitio_url)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(nombre, status, monto || null, moneda, notas || null, ultimo_contacto || null, sitio_url || null);
 
-    const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(result.lastInsertRowid);
+    const lead = await db.prepare('SELECT * FROM leads WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(lead, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

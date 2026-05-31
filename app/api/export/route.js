@@ -37,7 +37,7 @@ export async function GET() {
   // ── 1. Tareas por proyecto ──────────────────────────────────────────────────
   push('=== TAREAS POR PROYECTO ===', '');
 
-  const tareas = db.prepare(`SELECT * FROM tareas ORDER BY proyecto, completada ASC, id ASC`).all();
+  const tareas = await db.prepare(`SELECT * FROM tareas ORDER BY proyecto, completada ASC, id ASC`).all();
   const porProyecto = {};
   for (const t of tareas) {
     const p = t.proyecto || 'Sin proyecto';
@@ -65,7 +65,7 @@ export async function GET() {
   push('=== CLIENTES ACTIVOS ===', '');
 
   // Leads (Studio)
-  const leads = db.prepare(
+  const leads = await db.prepare(
     `SELECT * FROM leads WHERE status IN (${ACTIVE_LEAD_STATUSES.map(() => '?').join(',')}) ORDER BY id`
   ).all(...ACTIVE_LEAD_STATUSES);
 
@@ -81,7 +81,7 @@ export async function GET() {
   }
 
   // Sitios
-  const sitios = db.prepare(
+  const sitios = await db.prepare(
     `SELECT * FROM sitios WHERE status IN (${ACTIVE_SITIO_STATUSES.map(() => '?').join(',')}) ORDER BY id`
   ).all(...ACTIVE_SITIO_STATUSES);
 
@@ -97,7 +97,7 @@ export async function GET() {
   }
 
   // Sesiones (Fotografía)
-  const sesiones = db.prepare(
+  const sesiones = await db.prepare(
     `SELECT * FROM sesiones WHERE status IN (${ACTIVE_SESION_STATUSES.map(() => '?').join(',')}) ORDER BY fecha`
   ).all(...ACTIVE_SESION_STATUSES);
 
@@ -120,7 +120,7 @@ export async function GET() {
   // ── 3. Ingresos confirmados del mes ─────────────────────────────────────────
   push(`=== INGRESOS CONFIRMADOS — ${mes} ===`, '');
 
-  const ingresos = db.prepare(
+  const ingresos = await db.prepare(
     `SELECT * FROM ingresos WHERE strftime('%Y-%m', fecha) = ? ORDER BY fecha DESC`
   ).all(mes);
 
@@ -142,7 +142,7 @@ export async function GET() {
   // ── 4. Deudas pendientes ────────────────────────────────────────────────────
   push('=== DEUDAS PENDIENTES ===', '');
 
-  const deudas = db.prepare(`SELECT * FROM deudas WHERE pagada = 0 ORDER BY monto DESC`).all();
+  const deudas = await db.prepare(`SELECT * FROM deudas WHERE pagada = 0 ORDER BY monto DESC`).all();
 
   if (deudas.length) {
     for (const d of deudas) {

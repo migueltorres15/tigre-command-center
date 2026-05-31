@@ -8,11 +8,11 @@ export async function POST(request, { params }) {
     const { texto } = await request.json();
     if (!texto?.trim()) return Response.json({ error: 'texto requerido' }, { status: 400 });
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO sitio_tareas (sitio_id, texto) VALUES (?, ?)`
     ).run(id, texto.trim());
 
-    const tarea = db.prepare('SELECT * FROM sitio_tareas WHERE id = ?').get(result.lastInsertRowid);
+    const tarea = await db.prepare('SELECT * FROM sitio_tareas WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(tarea, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

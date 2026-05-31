@@ -34,11 +34,11 @@ export async function POST(request) {
       return Response.json({ error: 'texto es requerido' }, { status: 400 });
     }
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO tareas (texto, tag, proyecto, completada) VALUES (?, ?, ?, 0)`
     ).run(texto, tag, proyecto);
 
-    const tarea = db.prepare('SELECT * FROM tareas WHERE id = ?').get(result.lastInsertRowid);
+    const tarea = await db.prepare('SELECT * FROM tareas WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(tarea, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

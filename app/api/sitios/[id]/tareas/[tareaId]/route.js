@@ -8,7 +8,7 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { completada, texto } = body;
 
-    db.prepare(
+    await db.prepare(
       `UPDATE sitio_tareas SET
         completada = COALESCE(?, completada),
         texto = COALESCE(?, texto)
@@ -19,7 +19,7 @@ export async function PUT(request, { params }) {
       tareaId
     );
 
-    const tarea = db.prepare('SELECT * FROM sitio_tareas WHERE id = ?').get(tareaId);
+    const tarea = await db.prepare('SELECT * FROM sitio_tareas WHERE id = ?').get(tareaId);
     return Response.json(tarea);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -30,7 +30,7 @@ export async function DELETE(request, { params }) {
   try {
     const db = getDb();
     const { tareaId } = await params;
-    db.prepare('DELETE FROM sitio_tareas WHERE id = ?').run(tareaId);
+    await db.prepare('DELETE FROM sitio_tareas WHERE id = ?').run(tareaId);
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

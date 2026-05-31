@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 export async function GET() {
   try {
     const db = getDb();
-    const sesiones = db.prepare('SELECT * FROM sesiones ORDER BY fecha DESC, created_at DESC').all();
+    const sesiones = await db.prepare('SELECT * FROM sesiones ORDER BY fecha DESC, created_at DESC').all();
     return Response.json(sesiones);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -21,12 +21,12 @@ export async function POST(request) {
       return Response.json({ error: 'cliente es requerido' }, { status: 400 });
     }
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO sesiones (cliente, tipo, monto, moneda, fecha, status, notas)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(cliente, tipo || null, monto || null, moneda, fecha || null, status, notas || null);
 
-    const sesion = db.prepare('SELECT * FROM sesiones WHERE id = ?').get(result.lastInsertRowid);
+    const sesion = await db.prepare('SELECT * FROM sesiones WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(sesion, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

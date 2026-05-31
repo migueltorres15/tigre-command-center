@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 export async function GET() {
   try {
     const db = getDb();
-    const gastos = db.prepare('SELECT * FROM gastos_fijos ORDER BY id ASC').all();
+    const gastos = await db.prepare('SELECT * FROM gastos_fijos ORDER BY id ASC').all();
     return Response.json(gastos);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -25,10 +25,10 @@ export async function POST(request) {
     }
 
     const { dia_pago = 0, frecuencia = 'mensual', notas = '', dia_vencimiento = '' } = body;
-    const result = db.prepare(
+    const result = await db.prepare(
       'INSERT INTO gastos_fijos (nombre, monto, dia_pago, frecuencia, notas, dia_vencimiento) VALUES (?, ?, ?, ?, ?, ?)'
     ).run(nombre, monto, dia_pago || 0, frecuencia || 'mensual', notas || '', dia_vencimiento || '');
-    const gasto = db.prepare('SELECT * FROM gastos_fijos WHERE id = ?').get(result.lastInsertRowid);
+    const gasto = await db.prepare('SELECT * FROM gastos_fijos WHERE id = ?').get(result.lastInsertRowid);
     return Response.json(gasto, { status: 201 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

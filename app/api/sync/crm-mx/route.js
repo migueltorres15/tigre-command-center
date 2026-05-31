@@ -16,7 +16,7 @@ export async function GET() {
     const yaExisten = [];
 
     // Cargar TODOS los sitios (incluidos perdido) para evitar recrear eliminados
-    const todosLosSitios = db.prepare('SELECT id, cliente, whatsapp, etapa FROM sitios').all();
+    const todosLosSitios = await db.prepare('SELECT id, cliente, whatsapp, etapa FROM sitios').all();
 
     // Normalizar teléfono — solo dígitos
     const normTel = t => (t || '').replace(/\D/g, '');
@@ -76,7 +76,7 @@ export async function GET() {
 
       const whatsapp = lead.whatsapp || lead.telefono || '';
 
-      const ins = db.prepare(
+      const ins = await db.prepare(
         `INSERT INTO sitios (cliente, contacto, whatsapp, fecha_demo, paquete, link_demo, link_sitio, etapa, monto, moneda, notas)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).run(
@@ -86,7 +86,7 @@ export async function GET() {
         null, 'MXN', notas
       );
 
-      const nuevo = db.prepare('SELECT * FROM sitios WHERE id = ?').get(ins.lastInsertRowid);
+      const nuevo = await db.prepare('SELECT * FROM sitios WHERE id = ?').get(ins.lastInsertRowid);
       creados.push(nuevo);
     }
 
