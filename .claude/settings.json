@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "statusMessage": "Revisando sesión…",
+            "command": "python3 -c \"\nimport json, sys, subprocess, os\ntry:\n    d = json.load(sys.stdin)\nexcept Exception:\n    d = {}\nsid = d.get('session_id', 'daily')\nflagfile = f'/tmp/.cc-wrap-{sid}'\ncc_up = subprocess.run(['curl','-s','--connect-timeout','1','http://localhost:3000'], capture_output=True).returncode == 0\nif not os.path.exists(flagfile) and cc_up:\n    open(flagfile,'w').close()\n    print(json.dumps({'systemMessage': '\\U0001f4cb ¿Terminaste la sesión? Escríbeme \\\"terminamos\\\" y propondré las tareas para el Command Center.'}))\n\""
+          }
+        ]
+      }
+    ]
+  }
+}
